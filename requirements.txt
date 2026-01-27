@@ -2,3 +2,7 @@ requests
 beautifulsoup4
 Flask
 weasyprint
+beautifulsoup4
+flask
+requests
+weasyprint
