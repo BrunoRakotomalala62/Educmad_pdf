@@ -79,7 +79,7 @@ def get_course_id(sujet, serie):
         return COURSE_MAP[sujet].get(serie)
     return None
 
-def get_pdf_links(course_id, doc_type):
+def get_pdf_links(course_id, doc_type, serie):
     # Dans la plupart des cours EducMad :
     # Section 1 ou 2 = Énoncés
     # Section 2 ou 3 = Corrigés
@@ -119,6 +119,25 @@ def get_pdf_links(course_id, doc_type):
                     continue
                 if doc_type == "enonce" and ("corrig" in title.lower() or "correction" in title.lower()) and not is_enonce_section:
                     continue
+                
+                # FILTRAGE PAR SÉRIE
+                # On vérifie si le titre mentionne une autre série que celle demandée
+                # Si on demande "A", et que le titre dit "C" ou "D" ou "S" sans mentionner "A", on rejette
+                title_clean = title.upper()
+                series_to_check = ["A", "C", "D", "L", "S", "OSE"]
+                other_series = [s for s in series_to_check if s != serie]
+                
+                # Cas spécial "CD" ou "C-D"
+                if serie in ["C", "D"]:
+                    # Si on cherche C ou D, on accepte les titres qui mentionnent C, D ou CD
+                    is_valid_serie = any(s in title_clean for s in [serie, "CD", "C-D"])
+                else:
+                    # Pour les autres, on vérifie que la série demandée est présente
+                    # ou qu'aucune autre série spécifique n'est mentionnée
+                    is_valid_serie = serie in title_clean or not any(s in title_clean for s in other_series)
+
+                if not is_valid_serie:
+                    continue
 
                 title = title.replace("Sélectionner l’activité", "").replace("Fichier", "").replace("Page", "").strip()
                 year_match = re.search(r'(199\d|20[0-2]\d)', title)
@@ -149,7 +168,7 @@ def recherche():
     if not course_id:
         return jsonify({"error": f"Combinaison sujet '{sujet}' et série '{serie}' non trouvée."}), 404
 
-    data = get_pdf_links(course_id, doc_type)
+    data = get_pdf_links(course_id, doc_type, serie)
     base_host = request.host_url.rstrip('/')
     
     results = []
