@@ -172,7 +172,7 @@ def convert_to_pdf():
         content = soup.select_one('.generalbox') or soup.select_one('#region-main')
         if not content: return "Contenu non trouvé", 404
         
-        html_content = f"<html><head><meta charset='UTF-8'><style>body{{font-family:Arial;margin:40px;}}img{{max-width:100%;}}</style></head><body><h1>{title.replace('_', ' ')}</h1>{content.decode_contents()}</body></html>"
+        html_content = f"<html><head><meta charset='UTF-8'><style>body{{font-family:Arial;margin:40px;}}img{{max-width:100%;}}</style></head><body>{content.decode_contents()}</body></html>"
         pdf_file = io.BytesIO()
         HTML(string=html_content, base_url="http://mediatheque.accesmad.org").write_pdf(pdf_file)
         pdf_file.seek(0)
