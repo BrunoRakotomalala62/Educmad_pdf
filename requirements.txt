@@ -1,0 +1,4 @@
+requests
+beautifulsoup4
+Flask
+xhtml2pdf
